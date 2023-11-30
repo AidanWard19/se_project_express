@@ -2,19 +2,19 @@ const ClothingItem = require("../models/clothingItem");
 const { BAD_REQUEST, NOT_FOUND, DEFAULT } = require("../utils/errors");
 
 const createItem = (req, res) => {
-  console.log(req);
-  const { name, weather, imageURL } = req.body;
+  console.log(req.user._id);
+  const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageURL })
+  ClothingItem.create({ name, weather, imageUrl, owner: req.user_id })
     .then((item) => {
       console.log(item);
-      res.send({ data: item });
+      res.staus(200).send({ data: item });
     })
     .catch((err) => {
       console.error(err);
       if (err.name === `ValidationError`) {
         return res
-          .status(BAD_REQUEST)
+          .status(400)
           .send({ message: "Invalid request error on createItem", err });
       } else {
         return res
@@ -34,9 +34,9 @@ const getItems = (req, res) => {
 
 const updateItem = (req, res) => {
   const { itemId } = req.params;
-  const { imageURL } = req.body;
+  const { imageUrl } = req.body;
 
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } })
+  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
     .catch((err) => {
@@ -68,6 +68,7 @@ const deleteItem = (req, res) => {
 };
 
 const likeItem = (req, res) => {
+  console.log(req.user._id);
   const userId = req.user._id;
   const { itemId } = req.params;
 
@@ -81,7 +82,7 @@ const likeItem = (req, res) => {
       res.status(200).send({ data: item });
     })
     .catch((err) => {
-      console.error(err);
+      console.error(err.name);
       if (err.name === `DocumentNotFoundError`) {
         return res
           .status(NOT_FOUND)
@@ -98,6 +99,7 @@ const likeItem = (req, res) => {
 };
 
 const dislikeItem = (req, res) => {
+  console.log(req.user._id);
   const userId = req.user._id;
   const { itemId } = req.params;
 
@@ -134,4 +136,8 @@ module.exports = {
   deleteItem,
   likeItem,
   dislikeItem,
+};
+
+module.exports.createClothingItem = (req, res) => {
+  console.log(req.user._id); // _id will become accessible
 };
