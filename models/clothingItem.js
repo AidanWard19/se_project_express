@@ -24,6 +24,7 @@ const clothingItem = new mongoose.Schema({
   owner: {
     required: true,
     type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
   },
   likes: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
@@ -36,6 +37,3 @@ const clothingItem = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("clothingItem", clothingItem);
-module.exports.createClothingItem = (req, res) => {
-  console.log(req.user._id); // _id will become accessible
-};
