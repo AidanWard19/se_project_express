@@ -5,10 +5,10 @@ const createItem = (req, res) => {
   console.log(req.user._id);
   const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl, owner: req.user_id })
+  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
       console.log(item);
-      res.staus(200).send({ data: item });
+      res.status(200).send({ data: item });
     })
     .catch((err) => {
       console.error(err);
@@ -49,7 +49,7 @@ const deleteItem = (req, res) => {
 
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
-    .then((item) => res.status(204).send({}))
+    .then((item) => res.status(200).send({ message: "item deleted" }))
     .catch((err) => {
       console.error(err);
       if (err.name === `DocumentNotFoundError`) {
