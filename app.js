@@ -1,8 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const routes = require("./routes");
+
 const app = express();
 const { PORT = 3001 } = process.env;
-const routes = require("./routes");
 
 app.use((req, res, next) => {
   req.user = {

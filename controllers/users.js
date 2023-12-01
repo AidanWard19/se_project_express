@@ -8,7 +8,7 @@ const getUsers = (req, res) => {
       res.status(200).send({ data: users });
     })
     .catch((err) => {
-      res.status(DEFAULT).send({ message: `${err.name} from getUsers`, err });
+      res.status(DEFAULT).send({ message: `${err.name} from getUsers` });
     });
 };
 
@@ -18,25 +18,24 @@ const getUserId = (req, res) => {
   user
     .findById(userId)
     .orFail()
-    .then((user) => {
-      res.status(200).send({ data: user });
+    .then((foundUser) => {
+      res.status(200).send({ data: foundUser });
     })
     .catch((err) => {
       console.error(err);
       if (err.name === `DocumentNotFoundError`) {
         return res
           .status(NOT_FOUND)
-          .send({ message: `${err.name} error on getUserId`, err });
+          .send({ message: `${err.name} error on getUserId` });
       }
       if (err.name === `CastError`) {
         return res
           .status(BAD_REQUEST)
-          .send({ message: `${err.name} error on getUserId`, err });
-      } else {
-        return res
-          .status(DEFAULT)
-          .send({ message: `${err.name} error from getUserId`, err });
+          .send({ message: `${err.name} error on getUserId` });
       }
+      return res
+        .status(DEFAULT)
+        .send({ message: `${err.name} error from getUserId` });
     });
 };
 
@@ -53,12 +52,9 @@ const createUser = (req, res) => {
       if (err.name === `ValidationError`) {
         return res
           .status(BAD_REQUEST)
-          .send({ message: "Invalid request error on createUser", err });
-      } else {
-        return res
-          .status(DEFAULT)
-          .send({ message: "Error from createUser", err });
+          .send({ message: "Invalid request error on createUser" });
       }
+      return res.status(DEFAULT).send({ message: "Error from createUser" });
     });
 };
 

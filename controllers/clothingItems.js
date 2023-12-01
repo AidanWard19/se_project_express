@@ -14,13 +14,10 @@ const createItem = (req, res) => {
       console.error(err);
       if (err.name === `ValidationError`) {
         return res
-          .status(400)
-          .send({ message: "Invalid request error on createItem", err });
-      } else {
-        return res
-          .status(DEFAULT)
-          .send({ message: "Error from createItem", err });
+          .status(BAD_REQUEST)
+          .send({ message: "Invalid request error on createItem" });
       }
+      return res.status(DEFAULT).send({ message: "Error from createItem" });
     });
 };
 
@@ -28,42 +25,44 @@ const getItems = (req, res) => {
   ClothingItem.find({})
     .then((items) => res.status(200).send(items))
     .catch((err) => {
-      res.status(500).send({ message: "Get Items Failed", err });
+      console.log(err.name);
+      res.status(500).send({ message: "Get Items Failed" });
     });
 };
 
-const updateItem = (req, res) => {
-  const { itemId } = req.params;
-  const { imageUrl } = req.body;
+// const updateItem = (req, res) => {
+//   const { itemId } = req.params;
+//   const { imageUrl } = req.body;
 
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
-    .orFail()
-    .then((item) => res.status(200).send({ data: item }))
-    .catch((err) => {
-      res.status(500).send({ message: "updateItem failed", err });
-    });
-};
+//   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
+//     .orFail()
+//     .then((item) => res.status(200).send({ data: item }))
+//     .catch((err) => {
+//       res.status(500).send({ message: "updateItem failed" });
+//     });
+// };
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
-    .then((item) => res.status(200).send({ message: "item deleted" }))
+    .then(() => {
+      res.status(200).send({ message: "item deleted" });
+    })
     .catch((err) => {
       console.error(err);
       if (err.name === `DocumentNotFoundError`) {
         return res
           .status(NOT_FOUND)
-          .send({ message: `${err.name} error on deleteItem`, err });
+          .send({ message: `${err.name} error on deleteItem` });
       }
       if (err.name === `CastError`) {
         return res
           .status(BAD_REQUEST)
-          .send({ message: `${err.name} error on deleteItem`, err });
-      } else {
-        return res.status(500).send({ message: "deleteItem failed", err });
+          .send({ message: `${err.name} error on deleteItem` });
       }
+      return res.status(500).send({ message: "deleteItem failed" });
     });
 };
 
@@ -86,15 +85,14 @@ const likeItem = (req, res) => {
       if (err.name === `DocumentNotFoundError`) {
         return res
           .status(NOT_FOUND)
-          .send({ message: `${err.name} error on likeItem`, err });
+          .send({ message: `${err.name} error on likeItem` });
       }
       if (err.name === `CastError`) {
         return res
           .status(BAD_REQUEST)
-          .send({ message: `${err.name} error on likeItem`, err });
-      } else {
-        return res.status(500).send({ message: "likeItem failed", err });
+          .send({ message: `${err.name} error on likeItem` });
       }
+      return res.status(500).send({ message: "likeItem failed" });
     });
 };
 
@@ -117,27 +115,26 @@ const dislikeItem = (req, res) => {
       if (err.name === `DocumentNotFoundError`) {
         return res
           .status(NOT_FOUND)
-          .send({ message: `${err.name} error on dislikeItem`, err });
+          .send({ message: `${err.name} error on dislikeItem` });
       }
       if (err.name === `CastError`) {
         return res
           .status(BAD_REQUEST)
-          .send({ message: `${err.name} error on dislikeItem`, err });
-      } else {
-        return res.status(500).send({ message: "dislikeItem failed", err });
+          .send({ message: `${err.name} error on dislikeItem` });
       }
+      return res.status(500).send({ message: "dislikeItem failed" });
     });
 };
 
 module.exports = {
   createItem,
   getItems,
-  updateItem,
   deleteItem,
   likeItem,
   dislikeItem,
 };
 
 module.exports.createClothingItem = (req, res) => {
+  console.log(res);
   console.log(req.user._id); // _id will become accessible
 };
