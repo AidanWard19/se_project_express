@@ -46,17 +46,19 @@ const getUserId = (req, res) => {
 };
 
 const createUser = (req, res) => {
+  console.log("testing");
   const { name, avatar, email, password } = req.body;
-  // if (!email) {
-  //   throw new Error(
-  //     "Email is a required field -- cannot create user with no email",
-  //   );
-  // }
+  if (!email) {
+    return res
+      .status(400)
+      .send({ message: "Cannot create user with no email" });
+  }
 
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        return Promise.reject(new Error("User already exists"));
+        // return Promise.reject(new Error("User with email already exists"));
+        return res.status(409).send({ message: "User already exists" });
       }
       bcrypt.hash(password, 10);
     })
@@ -105,7 +107,7 @@ const updateProfile = (req, res) => {
     { new: true, runValidators: true },
   )
     .orFail()
-    .then((user) => res.send({}))
+    .then((user) => res.send({ user }))
     .catch((err) => {
       console.error(err.name);
       res
@@ -115,7 +117,13 @@ const updateProfile = (req, res) => {
 };
 
 const login = (req, res) => {
+  console.log(req.body);
   const { email, password } = req.body;
+  if (!password) {
+    return res
+      .status(400)
+      .send({ message: "Required password field is empty" });
+  }
 
   User.findUserByCredentials(email, password)
     .then((user) => {
@@ -125,7 +133,12 @@ const login = (req, res) => {
       res.status(200).send({ token });
     })
     .catch((err) => {
-      console.error(err.name);
+      console.log(err.message);
+      if (err.message === "Incorrect email or password") {
+        res
+          .status(UNAUTHORIZED)
+          .send({ message: "Incorrect email or password" });
+      }
       return res
         .status(UNAUTHORIZED)
         .send({ message: `${err.name} error on login` });

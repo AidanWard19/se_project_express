@@ -51,6 +51,7 @@ const getItems = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
   const userId = req.user._id;
+  console.log(itemId);
 
   ClothingItem.findById(itemId)
     .orFail()
@@ -68,7 +69,7 @@ const deleteItem = (req, res) => {
       });
     })
     .catch((err) => {
-      console.error(err);
+      console.log(err.name);
       if (err.name === `DocumentNotFoundError`) {
         return res
           .status(NOT_FOUND)
