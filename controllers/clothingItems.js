@@ -1,5 +1,11 @@
 const ClothingItem = require("../models/clothingItem");
-const { BAD_REQUEST, NOT_FOUND, DEFAULT } = require("../utils/errors");
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  DEFAULT,
+  UNAUTHORIZED,
+  FORBIDDEN,
+} = require("../utils/errors");
 
 const createItem = (req, res) => {
   console.log(req.user._id);
@@ -44,11 +50,22 @@ const getItems = (req, res) => {
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
+  const userId = req.user._id;
 
-  ClothingItem.findByIdAndDelete(itemId)
+  ClothingItem.findById(itemId)
     .orFail()
-    .then(() => {
-      res.status(200).send({ message: "item deleted" });
+    .then((item) => {
+      if (!item) {
+        return res.status(NOT_FOUND).send({ message: "Item not found" });
+      }
+      if (item.owner._id !== userId) {
+        return res
+          .status(UNAUTHORIZED)
+          .send({ message: "Not authorized to delete item" });
+      }
+      return ClothingItem.findByIdAndDelete(itemId).then(() => {
+        res.send({ message: `Item ${itemId} deleted` });
+      });
     })
     .catch((err) => {
       console.error(err);
@@ -62,7 +79,7 @@ const deleteItem = (req, res) => {
           .status(BAD_REQUEST)
           .send({ message: `${err.name} error on deleteItem` });
       }
-      return res.status(500).send({ message: "deleteItem failed" });
+      return res.status(FORBIDDEN).send({ message: "deleteItem failed" });
     });
 };
 

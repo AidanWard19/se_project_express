@@ -1,14 +1,21 @@
-// GET /users — returns all users
-// GET /users/:userId - returns a user by _id
-// POST /users — creates a new user
-
 const router = require("express").Router();
-const { getUsers, getUserId, createUser } = require("../controllers/users");
+const {
+  getUsers,
+  getUserId,
+  createUser,
+  getCurrentUser,
+  updateProfile,
+  login,
+} = require("../controllers/users");
+const auth = require("../middlewares/auth");
 
-router.post("/", createUser);
+router.use(auth);
 
-router.get("/:userId", getUserId);
+router.get("/me", getCurrentUser);
+router.patch("/me", updateProfile);
 
-router.get("/", getUsers);
+// router.post("/", createUser);
+// router.get("/:userId", getUserId);
+// router.get("/", getUsers);
 
 module.exports = router;
