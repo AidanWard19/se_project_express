@@ -64,7 +64,7 @@ const createUser = (req, res) => {
     })
     .then((hash) => User.create({ name, avatar, email, password: hash }))
     .then((item) => {
-      return res.status(200).send({ data: item });
+      return res.status(200).send({ item });
     })
     .catch((err) => {
       console.log(err.message);
@@ -122,10 +122,10 @@ const updateProfile = (req, res) => {
 const login = (req, res) => {
   console.log(req.body);
   const { email, password } = req.body;
-  if (!password) {
+  if (!email || !password) {
     return res
       .status(400)
-      .send({ message: "Required password field is empty" });
+      .send({ message: "Email and or password field is empty" });
   }
 
   return User.findUserByCredentials(email, password)
@@ -136,11 +136,11 @@ const login = (req, res) => {
       return res.status(200).send({ token });
     })
     .catch((err) => {
-      console.log(err);
+      console.log(err.name);
       if (err.message === "Incorrect email or password") {
         return res.status(UNAUTHORIZED).send({ message: `${err.message}` });
       }
-      return res.status(500).send({ message: `${err.name} error on login` });
+      return res.status(400).send({ message: `${err.name} error on login` });
     });
 };
 
