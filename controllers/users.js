@@ -46,7 +46,7 @@ const getUserId = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  console.log("testing");
+  console.log("testing", req.body);
   const { name, avatar, email, password } = req.body;
   if (!email) {
     return res
@@ -57,17 +57,20 @@ const createUser = (req, res) => {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        // return Promise.reject(new Error("User with email already exists"));
-        return res.status(409).send({ message: "User already exists" });
+        return Promise.reject(new Error("User with email already exists"));
+        // return res.status(409).send({ message: "User already exists" });
       }
-      bcrypt.hash(password, 10);
+      return bcrypt.hash(password, 10);
     })
     .then((hash) => User.create({ name, avatar, email, password: hash }))
     .then((item) => {
       return res.status(200).send({ data: item });
     })
     .catch((err) => {
-      console.log(err);
+      console.log(err.message);
+      if (err.message === "User with email already exists") {
+        return res.status(409).send({ message: "User already exists" });
+      }
       if (err.name === `ValidationError`) {
         return res
           .status(BAD_REQUEST)
@@ -125,23 +128,19 @@ const login = (req, res) => {
       .send({ message: "Required password field is empty" });
   }
 
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      res.status(200).send({ token });
+      return res.status(200).send({ token });
     })
     .catch((err) => {
-      console.log(err.message);
+      console.log(err);
       if (err.message === "Incorrect email or password") {
-        res
-          .status(UNAUTHORIZED)
-          .send({ message: "Incorrect email or password" });
+        return res.status(UNAUTHORIZED).send({ message: `${err.message}` });
       }
-      return res
-        .status(UNAUTHORIZED)
-        .send({ message: `${err.name} error on login` });
+      return res.status(500).send({ message: `${err.name} error on login` });
     });
 };
 
