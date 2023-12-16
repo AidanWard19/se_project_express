@@ -60,7 +60,7 @@ const deleteItem = (req, res) => {
         // return res.status(NOT_FOUND).send({ message: "Item not found" });
         return Promise.reject(new Error("Item not found"));
       }
-      if (item.owner._id !== userId) {
+      if (item.owner.equals(userId)) {
         // return res
         //   .status(UNAUTHORIZED)
         //   .send({ message: "Not authorized to delete item" });
