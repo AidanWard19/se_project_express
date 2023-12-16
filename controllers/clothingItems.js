@@ -57,12 +57,14 @@ const deleteItem = (req, res) => {
     .orFail()
     .then((item) => {
       if (!item) {
-        return res.status(NOT_FOUND).send({ message: "Item not found" });
+        // return res.status(NOT_FOUND).send({ message: "Item not found" });
+        return Promise.reject(new Error("Item not found"));
       }
       if (item.owner._id !== userId) {
-        return res
-          .status(UNAUTHORIZED)
-          .send({ message: "Not authorized to delete item" });
+        // return res
+        //   .status(UNAUTHORIZED)
+        //   .send({ message: "Not authorized to delete item" });
+        return Promise.reject(new Error("Not authorized to delete item"));
       }
       return ClothingItem.findByIdAndDelete(itemId).then(() => {
         res.send({ message: `Item ${itemId} deleted` });
@@ -70,6 +72,14 @@ const deleteItem = (req, res) => {
     })
     .catch((err) => {
       console.log(err.name);
+      if (err.message === "Item not found") {
+        return res.status(NOT_FOUND).send({ message: "Item not found" });
+      }
+      if (err.message === "Not authorized to delete item") {
+        return res
+          .status(UNAUTHORIZED)
+          .send({ message: "Not authorized to delete item" });
+      }
       if (err.name === `DocumentNotFoundError`) {
         return res
           .status(NOT_FOUND)
