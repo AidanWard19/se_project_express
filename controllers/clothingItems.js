@@ -3,7 +3,6 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
   DEFAULT,
-  UNAUTHORIZED,
   FORBIDDEN,
 } = require("../utils/errors");
 
@@ -14,7 +13,7 @@ const createItem = (req, res) => {
   ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
       console.log(item);
-      res.status(200).send({ data: item });
+      res.send({ data: item });
     })
     .catch((err) => {
       console.error(err);
@@ -29,10 +28,10 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.status(200).send(items))
+    .then((items) => res.send(items))
     .catch((err) => {
       console.log(err.name);
-      res.status(500).send({ message: "Get Items Failed" });
+      res.status(DEFAULT).send({ message: "Get Items Failed" });
     });
 };
 
@@ -42,9 +41,9 @@ const getItems = (req, res) => {
 
 //   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
 //     .orFail()
-//     .then((item) => res.status(200).send({ data: item }))
+//     .then((item) => res.send({ data: item }))
 //     .catch((err) => {
-//       res.status(500).send({ message: "updateItem failed" });
+//       res.status(DEFAULT).send({ message: "updateItem failed" });
 //     });
 // };
 
@@ -56,10 +55,6 @@ const deleteItem = (req, res) => {
   ClothingItem.findById(itemId)
     .orFail()
     .then((item) => {
-      if (!item) {
-        // return res.status(NOT_FOUND).send({ message: "Item not found" });
-        return Promise.reject(new Error("Item not found"));
-      }
       if (!item.owner.equals(userId)) {
         // return res
         //   .status(UNAUTHORIZED)
@@ -72,9 +67,6 @@ const deleteItem = (req, res) => {
     })
     .catch((err) => {
       console.log(err.name);
-      if (err.message === "Item not found") {
-        return res.status(NOT_FOUND).send({ message: "Item not found" });
-      }
       if (err.message === "Not authorized to delete item") {
         return res
           .status(FORBIDDEN)
@@ -90,7 +82,7 @@ const deleteItem = (req, res) => {
           .status(BAD_REQUEST)
           .send({ message: `${err.name} error on deleteItem` });
       }
-      return res.status(FORBIDDEN).send({ message: "deleteItem failed" });
+      return res.status(DEFAULT).send({ message: "deleteItem failed" });
     });
 };
 
@@ -106,7 +98,7 @@ const likeItem = (req, res) => {
   )
     .orFail()
     .then((item) => {
-      res.status(200).send({ data: item });
+      res.send({ data: item });
     })
     .catch((err) => {
       console.error(err.name);
@@ -120,7 +112,7 @@ const likeItem = (req, res) => {
           .status(BAD_REQUEST)
           .send({ message: `${err.name} error on likeItem` });
       }
-      return res.status(500).send({ message: "likeItem failed" });
+      return res.status(DEFAULT).send({ message: "likeItem failed" });
     });
 };
 
@@ -136,7 +128,7 @@ const dislikeItem = (req, res) => {
   )
     .orFail()
     .then((item) => {
-      res.status(200).send({ data: item });
+      res.send({ data: item });
     })
     .catch((err) => {
       console.error(err);
@@ -150,7 +142,7 @@ const dislikeItem = (req, res) => {
           .status(BAD_REQUEST)
           .send({ message: `${err.name} error on dislikeItem` });
       }
-      return res.status(500).send({ message: "dislikeItem failed" });
+      return res.status(DEFAULT).send({ message: "dislikeItem failed" });
     });
 };
 
@@ -160,9 +152,4 @@ module.exports = {
   deleteItem,
   likeItem,
   dislikeItem,
-};
-
-module.exports.createClothingItem = (req, res) => {
-  console.log(res);
-  console.log(req.user._id); // _id will become accessible
 };
