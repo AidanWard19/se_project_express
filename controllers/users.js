@@ -32,13 +32,13 @@ const createUser = (req, res) => {
       console.log(err.message);
       if (err.message === "User with email already exists") {
         res.status(CONFLICT).send({ message: "User already exists" });
-      }
-      if (err.name === `ValidationError`) {
+      } else if (err.name === `ValidationError`) {
         res
           .status(BAD_REQUEST)
           .send({ message: "Invalid request error on createUser" });
+      } else {
+        res.status(DEFAULT).send({ message: "Error from createUser" });
       }
-      res.status(DEFAULT).send({ message: "Error from createUser" });
     });
 };
 
@@ -54,10 +54,11 @@ const getCurrentUser = (req, res) => {
         res
           .status(NOT_FOUND)
           .send({ message: `${err.name} error on getCurrentUser` });
+      } else {
+        res
+          .status(DEFAULT)
+          .send({ message: `${err.name} error on getCurrentUser` });
       }
-      res
-        .status(DEFAULT)
-        .send({ message: `${err.name} error on getCurrentUser` });
     });
 };
 
@@ -79,16 +80,15 @@ const updateProfile = (req, res) => {
         res
           .status(BAD_REQUEST)
           .send({ message: `${err.name} error on getCurrentUser` });
-      }
-      if (err.name === "DocumentNotFoundError") {
+      } else if (err.name === "DocumentNotFoundError") {
         res
           .status(NOT_FOUND)
           .send({ message: `${err.name} error on getCurrentUser` });
+      } else {
+        res
+          .status(DEFAULT)
+          .send({ message: `${err.name} error on updateProfile` });
       }
-
-      res
-        .status(DEFAULT)
-        .send({ message: `${err.name} error on updateProfile` });
     });
 };
 
@@ -114,7 +114,7 @@ const login = (req, res) => {
         return res.status(UNAUTHORIZED).send({ message: `${err.message}` });
       }
       return res
-        .status(BAD_REQUEST)
+        .status(DEFAULT)
         .send({ message: `${err.name} error on login` });
     });
 };
