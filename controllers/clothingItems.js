@@ -60,7 +60,7 @@ const deleteItem = (req, res) => {
         // return res.status(NOT_FOUND).send({ message: "Item not found" });
         return Promise.reject(new Error("Item not found"));
       }
-      if (item.owner.equals(userId)) {
+      if (!item.owner.equals(userId)) {
         // return res
         //   .status(UNAUTHORIZED)
         //   .send({ message: "Not authorized to delete item" });
@@ -77,7 +77,7 @@ const deleteItem = (req, res) => {
       }
       if (err.message === "Not authorized to delete item") {
         return res
-          .status(UNAUTHORIZED)
+          .status(FORBIDDEN)
           .send({ message: "Not authorized to delete item" });
       }
       if (err.name === `DocumentNotFoundError`) {
