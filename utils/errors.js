@@ -1,15 +1,50 @@
-const BAD_REQUEST = 400;
-const FORBIDDEN = 403;
-const NOT_FOUND = 404;
 const DEFAULT = 500;
-const UNAUTHORIZED = 401;
-const CONFLICT = 409;
+
+class BadRequestError extends Error {
+  constructor(message) {
+    super(message);
+    this.status = 400;
+    this.name = "BadRequestError";
+  }
+}
+
+class ForbiddenError extends Error {
+  constructor(message) {
+    super(message);
+    this.status = 403;
+    this.name = "ForbiddenError";
+  }
+}
+
+class NotFoundError extends Error {
+  constructor(message) {
+    super(message);
+    this.status = 404;
+    this.name = "NotFoundError";
+  }
+}
+
+class UnauthorizedError extends Error {
+  constructor(message) {
+    super(message);
+    this.status = 401;
+    this.name = "UnauthorizedError";
+  }
+}
+
+class ConflictError extends Error {
+  constructor(message) {
+    super(message);
+    this.status = 409;
+    this.name = "ConflictError";
+  }
+}
 
 module.exports = {
-  BAD_REQUEST,
-  FORBIDDEN,
-  NOT_FOUND,
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
   DEFAULT,
-  UNAUTHORIZED,
-  CONFLICT,
+  UnauthorizedError,
+  ConflictError,
 };
