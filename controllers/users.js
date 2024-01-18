@@ -3,26 +3,24 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 
 const {
-  BAD_REQUEST,
-  UNAUTHORIZED,
-  NOT_FOUND,
-  DEFAULT,
-  CONFLICT,
+  BadRequestError,
+  NotFoundError,
+  ConflictError,
+  UnauthorizedError,
 } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
   if (!email) {
-    res
-      .status(BAD_REQUEST)
-      .send({ message: "Cannot create user with no email" });
+    res;
+    throw new BadRequestError();
   }
 
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        return Promise.reject(new Error("User with email already exists"));
+        throw new BadRequestError();
       }
       return bcrypt.hash(password, 10);
     })
@@ -31,18 +29,16 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.log(err.message);
       if (err.message === "User with email already exists") {
-        res.status(CONFLICT).send({ message: "User already exists" });
+        next(new ConflictError());
       } else if (err.name === `ValidationError`) {
-        res
-          .status(BAD_REQUEST)
-          .send({ message: "Invalid request error on createUser" });
+        next(new BadRequestError());
       } else {
-        res.status(DEFAULT).send({ message: "Error from createUser" });
+        next(err);
       }
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
 
   User.findById(userId)
@@ -51,18 +47,14 @@ const getCurrentUser = (req, res) => {
     .catch((err) => {
       console.error(err.name);
       if (err.name === "DocumentNotFoundError") {
-        res
-          .status(NOT_FOUND)
-          .send({ message: `${err.name} error on getCurrentUser` });
+        next(new NotFoundError());
       } else {
-        res
-          .status(DEFAULT)
-          .send({ message: `${err.name} error on getCurrentUser` });
+        next(err);
       }
     });
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const { name, avatar } = req.body;
   const userId = req.user._id;
 
@@ -77,23 +69,16 @@ const updateProfile = (req, res) => {
       console.error(err.name);
 
       if (err.name === "ValidationError") {
-        res
-          .status(BAD_REQUEST)
-          .send({ message: `${err.name} error on getCurrentUser` });
+        next(new BadRequestError());
       } else if (err.name === "DocumentNotFoundError") {
-        res
-          .status(NOT_FOUND)
-          .send({ message: `${err.name} error on getCurrentUser` });
+        next(new NotFoundError());
       } else {
-        res
-          .status(DEFAULT)
-          .send({ message: `${err.name} error on updateProfile` });
+        next(err);
       }
     });
 };
 
-const login = (req, res) => {
-  console.log(req.body);
+const login = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res
@@ -111,11 +96,10 @@ const login = (req, res) => {
     .catch((err) => {
       console.log(err.name);
       if (err.message === "Incorrect email or password") {
-        return res.status(UNAUTHORIZED).send({ message: `${err.message}` });
+        next(new UnauthorizedError());
+      } else {
+        next(err);
       }
-      return res
-        .status(DEFAULT)
-        .send({ message: `${err.name} error on login` });
     });
 };
 

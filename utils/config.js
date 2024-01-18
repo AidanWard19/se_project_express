@@ -1,3 +1,4 @@
+const { JWT_SECRET = "dev-key" } = process.env;
 module.exports = {
-  JWT_SECRET = NODE_ENV === "production" ? process.env.JWT_SECRET : "secret-key";
+  JWT_SECRET,
 };
