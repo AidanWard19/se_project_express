@@ -4,7 +4,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const routes = require("./routes");
 const { login, createUser } = require("./controllers/users");
-const errorHandler = require("./middlewares/error-handler");
+const { errorHandler } = require("./middlewares/error-handler");
 const { errors } = require("celebrate");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 
