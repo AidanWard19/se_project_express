@@ -1,26 +1,22 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
-
-const {
-  BadRequestError,
-  NotFoundError,
-  ConflictError,
-  UnauthorizedError,
-} = require("../utils/errors");
+const { BadRequestError } = require("../utils/BadRequestError");
+const { ConflictError } = require("../utils/ConflictError");
+const { NotFoundError } = require("../utils/NotFoundError");
+const { UnauthorizedError } = require("../utils/UnauthorizedError");
 const { JWT_SECRET } = require("../utils/config");
 
 const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
   if (!email) {
-    res;
     throw new BadRequestError();
   }
 
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        throw new BadRequestError();
+        throw new ConflictError();
       }
       return bcrypt.hash(password, 10);
     })
@@ -28,9 +24,7 @@ const createUser = (req, res, next) => {
     .then(() => res.send({ name, avatar, email }))
     .catch((err) => {
       console.log(err.message);
-      if (err.message === "User with email already exists") {
-        next(new ConflictError());
-      } else if (err.name === `ValidationError`) {
+      if (err.name === `ValidationError`) {
         next(new BadRequestError());
       } else {
         next(err);
@@ -80,11 +74,6 @@ const updateProfile = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    return res
-      .status(BAD_REQUEST)
-      .send({ message: "Email and or password field is empty" });
-  }
 
   return User.findUserByCredentials(email, password)
     .then((user) => {

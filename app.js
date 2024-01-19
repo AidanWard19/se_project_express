@@ -2,11 +2,15 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
+const { errors } = require("celebrate");
 const routes = require("./routes");
 const { login, createUser } = require("./controllers/users");
 const { errorHandler } = require("./middlewares/error-handler");
-const { errors } = require("celebrate");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
+const {
+  validateAuth,
+  validateCreateUser,
+} = require("./middlewares/validation");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -20,10 +24,9 @@ app.get("/crash-test", () => {
     throw new Error("Server will crash now");
   }, 0);
 });
-
-app.post("/signin", login);
-app.post("/signup", createUser);
 app.use(requestLogger);
+app.post("/signin", validateAuth, login);
+app.post("/signup", validateCreateUser, createUser);
 app.use(routes);
 app.use(errorLogger);
 app.use(errors());

@@ -1,10 +1,7 @@
 const ClothingItem = require("../models/clothingItem");
-const {
-  BadRequestError,
-  NotFoundError,
-  ForbiddenError,
-  UnauthorizedError,
-} = require("../utils/errors");
+const { BadRequestError } = require("../utils/BadRequestError");
+const { ForbiddenError } = require("../utils/ForbiddenError");
+const { NotFoundError } = require("../utils/NotFoundError");
 
 const createItem = (req, res, next) => {
   console.log(req.user._id);
@@ -18,7 +15,7 @@ const createItem = (req, res, next) => {
     .catch((err) => {
       console.error(err);
       if (err.name === `ValidationError`) {
-        next(new BadRequestError());
+        next(new BadRequestError("Invalid data"));
       }
       next(err);
     });
@@ -41,21 +38,18 @@ const deleteItem = (req, res, next) => {
     .orFail()
     .then((item) => {
       if (!item.owner.equals(userId)) {
-        throw new UnauthorizedError();
+        throw new ForbiddenError();
       }
       return ClothingItem.findByIdAndDelete(itemId).then(() => {
         res.send({ message: `Item ${itemId} deleted` });
       });
     })
     .catch((err) => {
-      if (err.message === "Not authorized to delete item") {
-        next(new ForbiddenError());
-      }
       if (err.name === `DocumentNotFoundError`) {
         next(new NotFoundError());
       }
       if (err.name === `CastError`) {
-        next(new BadRequestError());
+        next(new BadRequestError("Invalid data"));
       }
       next(err);
     });
@@ -81,7 +75,7 @@ const likeItem = (req, res, next) => {
         next(new NotFoundError());
       }
       if (err.name === `CastError`) {
-        next(new BadRequestError());
+        next(new BadRequestError("Invalid data"));
       }
       next(err);
     });
@@ -107,7 +101,7 @@ const dislikeItem = (req, res, next) => {
         next(new NotFoundError());
       }
       if (err.name === `CastError`) {
-        next(new BadRequestError());
+        next(new BadRequestError("Invalid data"));
       }
       next(err);
     });
