@@ -1,3 +1,9 @@
+https://www.whatweather.csproject.org
+
+# Backend Repo Link
+
+https://github.com/AidanWard19/se_project_react
+
 # WTWR (What to Wear?): Back End
 
 This back-end project is focused on creating a server for the WTWR application. It utilizes databases, setting up security and testing, and deployment of web applications on a remote machine. The eventual goal is to create a server with an API and user authorization.
